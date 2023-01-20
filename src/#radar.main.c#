@@ -1,0 +1,72 @@
+ /*
+ * E89 Pedagogical & Technical Lab
+ * project:     radar
+ * created on:  2023-01-20 - 10:14 +0100
+ * 1st author:  dylan.le - dylan.le
+ * description: laser
+ */
+
+#include "map.h"
+#include "fonction.h"
+#include <lapin.h>
+
+// vos prototypes
+
+int main(void)
+{
+        t_bunny_window           *win;
+        t_bunny_pixelarray       *px;
+        t_accurate_pos pos;
+        double                    angle;
+        t_accurate_pos apos;
+        t_bunny_position bpos;
+        t_bunny_position posa;
+
+        int mx[6 * 6] = {
+            1, 1, 1, 1, 1, 1,
+            1, 0, 0, 0, 0, 1,
+            1, 0, 0, 0, 0, 1,
+            1, 0, 0, 0, 1, 1,
+            1, 1, 0, 1, 1, 1,
+            1, 1, 1, 1, 1, 1,
+        };
+        struct map map;
+        map.width     = 6;
+        map.height    = 6;
+        map.tile_size = 100;
+        map.map       = &mx[0];
+        pos.x         = 2.5;
+        pos.y         = 2.5;
+        angle         = 0;
+        win           = bunny_start(map.width * map.tile_size,
+                                    map.height * map.tile_size,
+                                    false,
+                                    "fl: TP Laser");
+        px = bunny_new_pixelarray(win->buffer.width, win->buffer.height);
+        clear_pixelarray(px, BLACK);
+
+        //posa = pos_from_accurate(&pos);
+
+        while(angle < 360) {
+            apos = send_ray(&map, &pos,angle);
+            pos.x = pos.x * map.tile_size;
+            pos.y = pos.y * map.tile_size;
+            apos.x = pos.x * map.tile_size;
+            apos.y = pos.y * map.tile_size;
+            posa = pos_from_accurate(&pos);
+            bpos = pos_from_accurate(&apos);
+            stu_draw_line(px, &posa, &bpos, RED);
+            bunny_blit(&win->buffer, &px->clipable, NULL);
+            bunny_display(win);
+            angle = angle + M_PI/360;
+            clear_pixelarray(px, BLACK);
+            angle += 1;
+
+        }
+        bunny_blit(&win->buffer, &px->clipable, NULL);
+        bunny_display(win);
+        bunny_usleep(1e8);
+        bunny_delete_clipable(&px->clipable);
+        bunny_stop(win);
+        return (0);
+}
