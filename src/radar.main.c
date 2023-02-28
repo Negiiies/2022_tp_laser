@@ -16,7 +16,7 @@ int main(void)
 {
         t_bunny_window           *win;
         t_bunny_pixelarray       *px;
-        t_accurate_pos pos;
+        t_bunny_accurate_position pos;
         double                    angle;
         t_accurate_pos apos;
         t_bunny_position bpos;
@@ -44,28 +44,30 @@ int main(void)
                                     "fl: TP Laser");
         px = bunny_new_pixelarray(win->buffer.width, win->buffer.height);
         clear_pixelarray(px, BLACK);
-
-        //posa = pos_from_accurate(&pos);
-
-        //while(angle < 360) {
+        
+        
+        //apos.x = pos.x * map.tile_size;
+        //apos.y = pos.y * map.tile_size;
+        pos.x = pos.x * map.tile_size;
+        pos.y = pos.y * map.tile_size;
+        posa = pos_from_accurate(&pos);
+        pos.x = pos.x / map.tile_size;
+        pos.y = pos.y / map.tile_size;
+        
+        while(angle < 360) {
+            //posa = pos_from_accurate(&pos);
             apos = send_ray(&map, &pos,angle);
-            pos.x = pos.x * map.tile_size;
-            pos.y = pos.y * map.tile_size;
-            apos.x = pos.x * map.tile_size;
-            apos.y = pos.y * map.tile_size;
-            posa = pos_from_accurate(&pos);
             bpos = pos_from_accurate(&apos);
+            clear_pixelarray(px, BLACK);
             stu_draw_line(px, &posa, &bpos, RED);
             bunny_blit(&win->buffer, &px->clipable, NULL);
             bunny_display(win);
+            bunny_usleep(1e5);
             angle = angle + M_PI/360;
-            clear_pixelarray(px, BLACK);
-            angle += 1;
 
         }
         bunny_blit(&win->buffer, &px->clipable, NULL);
         bunny_display(win);
-        bunny_usleep(1e8);
         bunny_delete_clipable(&px->clipable);
         bunny_stop(win);
         return (0);

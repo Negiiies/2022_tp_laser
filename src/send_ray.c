@@ -16,12 +16,14 @@ t_accurate_pos send_ray(struct map *map,
     double taille;
 
     taille = 0;
+    //pos.y *= map->tile_size;
+    //pos.x *= map->tile_size;
     i = (int)start->x + ((int)start->y * map->width);
     while (map->map[i] != 1 ) {
         pos = move_forward(start, angle, taille);
         i = (int)pos.x + ((int)pos.y * map->width);
         taille += 0.01;
-
+ 
     }
     if(map->map[i] == 1) {
         pos = move_forward(start, angle, taille);
